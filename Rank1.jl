@@ -8,7 +8,7 @@ where `λ` is a positive parameter and x is a vector.
 """
 
 export Rank1
-struct Rank1{R<: Real}
+struct Rank1{R<: Real} <: ProximableFunction
     lambda::R
     nrow::Int
     ncol::Int
@@ -25,7 +25,6 @@ Rank1(lambda::R, nrow::Int, ncol::Int) where {R} =  Rank1{R}(lambda, nrow, ncol)
 function (f::Rank1)(x::AbstractVector{R}) where {R <: Real}
     return f.lambda * rank(reshape(x, f.nrow, f.ncol))
 end
-
 
 function prox!(y::AbstractVector{R}, f::Rank1{R}, x::AbstractVector{R}, gamma::R) where {R <: Real}
     A = reshape(x, f.nrow, f.ncol)
