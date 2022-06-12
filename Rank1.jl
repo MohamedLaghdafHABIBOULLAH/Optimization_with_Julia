@@ -5,35 +5,31 @@ Return the rank
 f(x) = λ*rank(matrix(x)),
 ```
 where `λ` is a positive parameter and x is a vector.
-
 """
 
-
 export Rank1
-
-struct Rank1{R<: Real, V <: Int64}
+struct Rank1{R<: Real}
     lambda::R
-    m::V
-    n::V
-    function Rank1(lambda::R, m::V, n::V) where {R <: Real, V<: Int64}
-        if lambda < 0 || n <= 0 || m <= 0
-            error("parameter λ,n,m must be nonnegative")
-        else
-            new{typeof(lambda),typeof(m)}(lambda,m,n)
+    nrow::Int
+    ncol::Int
+    function Rank1(lambda::R, nrow::Int, ncol::Int) where {R <: Real}
+        if lambda < 0 || nrow <= 0 || ncol <= 0
+            error("parameters λ, nrow and ncol must be nonnegative")
         end
+        new{typeof(lambda)}(lambda, nrow, ncol)
     end
 end
 
-Rank1(lambda::R, m::V, n::V) where {R,V} =  Rank1{R,V}(lambda,m,n)
+Rank1(lambda::R, nrow::Int, ncol::Int) where {R} =  Rank1{R}(lambda, nrow, ncol)
 
 function (f::Rank1)(x::AbstractVector{R}) where {R <: Real}
-    return f.lambda*rank(reshape(x,f.m,f.n))
+    return f.lambda * rank(reshape(x, f.nrow, f.ncol))
 end
 
 
-function prox!(y::AbstractVector{R}, f::Rank1{R,V}, x::AbstractVector{R}, gamma::R) where {R <: Real, V<: Int}
-    A = reshape(x,f.m,f.n)
+function prox!(y::AbstractVector{R}, f::Rank1{R}, x::AbstractVector{R}, gamma::R) where {R <: Real}
+    A = reshape(x, f.nrow, f.ncol)
     F = svd(A)
-    y = vec(reshape(F.U * Diagonal(ProximalOperators.prox_naive(NormL0(f.lambda),F.S,gamma)[1]) * F.Vt, f.m*f.n, 1))
+    y = vec(reshape(F.U * Diagonal(ProximalOperators.prox_naive(NormL0(f.lambda),F.S,gamma)[1]) * F.Vt, f.nrow * f.ncol, 1))
     return y
 end
