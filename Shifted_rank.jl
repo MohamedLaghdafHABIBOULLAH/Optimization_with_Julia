@@ -67,21 +67,16 @@ function prox!(
   q::AbstractVector{R},
   σ::R,
 ) where {R <: Real, V0 <: AbstractVector{R}, V1 <: AbstractVector{R}, V2 <: AbstractVector{R}}
-    A = reshape(ψ.xk + ψ.sj, ψ.h.nrow, ψ.h.ncol)
-    Q = reshape(q, ψ.h.nrow, ψ.h.ncol)
-    SA = svd(A)
+    XS = reshape(ψ.xk + ψ.sj, ψ.h.nrow, ψ.h.ncol)
+    Q = reshape(q + ψ.xk + ψ.sj, ψ.h.nrow, ψ.h.ncol)
     SQ = svd(Q)
     yvec = SQ.S
     c = sqrt(2 * ψ.λ * σ)
     for i ∈ eachindex(SQ.S)
-        xps = SA.S[i]
-        if abs(xps + SQ.S[i]) ≤ c
-        yvec[i] = -xps
-        else
-        yvec[i] = SQ.S[i]
-        end
+      over = abs(SQ.S[i]) > c
+      yvec[i] = over * SQ.S[i]
     end
-    y = vec(reshape(SQ.U * Diagonal(yvec) * SQ.Vt , ψ.h.nrow * ψ.h.ncol, 1))
+    y = vec(reshape(SQ.U * Diagonal(yvec) * SQ.Vt - XS, ψ.h.nrow * ψ.h.ncol, 1))
     return y
 end
 
