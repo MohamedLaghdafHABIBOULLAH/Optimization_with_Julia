@@ -78,5 +78,17 @@ function prox!(
     end
     y = vec(reshape(SQ.U * Diagonal(yvec) * SQ.Vt - XS, ψ.h.nrow * ψ.h.ncol, 1))
     return y
+    end
 end
+
+
+##  Tests 
+h = Rank1(5.,2,2)
+y = zeros(4)
+f1 = ShiftedRank(h,[1.0, 1.0, 8.0, 1.0], [0., 0., 0., 0.], false)
+
+prox!(y,f1,[1.0; 8.0; 8.0; 10.0],5.0) == prox!(y,h,[1.0; 8.0; 8.0; 10.0] + [1.0, 1.0, 8.0, 1.0] ,5.) - [1.0, 1.0, 8.0, 1.0]
+
+
+
 
