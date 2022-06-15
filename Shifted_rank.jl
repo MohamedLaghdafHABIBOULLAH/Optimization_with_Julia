@@ -90,5 +90,33 @@ f1 = ShiftedRank(h,[1.0, 1.0, 8.0, 1.0], [0., 0., 0., 0.], false)
 prox!(y,f1,[1.0; 8.0; 8.0; 10.0],5.0) == prox!(y,h,[1.0; 8.0; 8.0; 10.0] + [1.0, 1.0, 8.0, 1.0] ,5.) - [1.0, 1.0, 8.0, 1.0]
 
 
+## Objective function of the prox
+function f_obj(t::AbstractVector{R}, ψ::ShiftedRank{R, V0, V1, V2}, q::AbstractVector{R}, σ::R) where {R <: Real, V0 <: AbstractVector{R}, V1 <: AbstractVector{R}, V2 <: AbstractVector{R}}
+  T = reshape(t, ψ.h.nrow, ψ.h.ncol)
+  Q = reshape(q, ψ.h.nrow, ψ.h.ncol)
+  XS = reshape(ψ.xk + ψ.sj, ψ.h.nrow, ψ.h.ncol)
+  return 0.5 * norm(T - Q)^2 + ψ.λ * σ * rank(XS + T)
+end
+
+
+A1 = Rot(pi/4)
+A2 = Rot(pi/6)
+A3 = Rot(pi)
+A4 = Rot(pi/3)
+A5 = Rot(pi/2)
+O = vcat([A1 zeros(2,8)], [zeros(2,2) A2 zeros(2,6)], [zeros(2,4) A3 zeros(2,4)], [zeros(2,6) A4 zeros(2,2)], [zeros(2,8) A5] )
+Atest = O * Diagonal([8., 5.5, 3., 2.5, 2., 1., 0., 0., 0., 0.]) * transpose(O)
+
+h2 = Rank1(10.,10,10)
+y2 = zeros(100)
+xtest = vec(reshape(Atest,100,1))
+f2 = ShiftedRank(h2, xtest, zeros(100), false)
+
+prox!(y2, f2, xtest, 100.0) == prox!(y2, h2, 2*xtest ,100.) - xtest 
+
+f_obj(prox!(y2, f2, xtest, 100.0), f2, xtest, 100.)  ### Evaluating it
+
+
+
 
 
