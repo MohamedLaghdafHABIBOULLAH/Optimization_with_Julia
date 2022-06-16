@@ -131,4 +131,14 @@ y3 = zeros(110)
 norm(prox!(y3, f3, qtest3, 100.0) - (prox!(y3, h3, qtest3 + xtest3 + stest3, 100.) - xtest3 - stest3)) <= 1e-11 
 
 
+### Random Rectangular matrix (10*11)
+
+xtest4 = vec(reshape(rand(10,11),110,1))
+qtest4 = vec(reshape(rand(10,11),110,1))
+stest4 = vec(reshape(rand(10,11),110,1))
+h4 = Rank1(10.,10,11)
+f4 = ShiftedRank(h2,xtest4, stest4, true)
+y4 = zeros(110)
+
+norm(prox!(y4, f4, qtest4, 10.0) - (prox!(y4, h4, qtest4 + xtest4 + stest4 ,10.) - xtest4 - stest4)) <= 1e-11 
 
