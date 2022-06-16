@@ -144,26 +144,17 @@ norm(prox!(y4, f4, qtest4, 10.0) - (prox!(y4, h4, qtest4 + xtest4 + stest4 ,10.)
 
 
 ##### Diagonal matrix (10*10)
-
-
-
-
 st1 = rand(10)
 
 xtest5 = vec(reshape(Diagonal(st1),100,1))
 qtest5 = vec(reshape(Diagonal(st1.^2),100,1))
 stest5 = vec(reshape(Diagonal(st1/2),100,1))
-
 h5 = Rank1(10.,10,10)
 f5 = ShiftedRank(h5,xtest5, stest5, true)
 y5 = zeros(100)
-
-
 k5 = NormL0(10.)
-
 t5 = ones(10)
 using ProximalOperators
-
 ProximalOperators.prox!(t5,k5, st1 + st1.^2 + st1/2, 10.0)
 
 norm(Diagonal(t5 - st1 - st1/2) - reshape(prox!(y5, f5, qtest5, 10.0),10,10)) <= 1e-12
