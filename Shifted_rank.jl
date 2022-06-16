@@ -98,6 +98,7 @@ function f_obj(t::AbstractVector{R}, ψ::ShiftedRank{R, V0, V1, V2}, q::Abstract
   return 0.5 * norm(T - Q)^2 + ψ.λ * σ * rank(XS + T)
 end
 
+### Squared matrix (10*10)
 
 A1 = Rot(pi/4)
 A2 = Rot(pi/6)
@@ -109,14 +110,25 @@ Atest = O * Diagonal([8., 5.5, 3., 2.5, 2., 1., 0., 0., 0., 0.]) * transpose(O)
 
 h2 = Rank1(10.,10,10)
 y2 = zeros(100)
-xtest = vec(reshape(Atest,100,1))
+xtest2 = vec(reshape(Atest,100,1))
 f2 = ShiftedRank(h2, xtest, zeros(100), false)
 
-prox!(y2, f2, xtest, 100.0) == prox!(y2, h2, 2*xtest ,100.) - xtest 
+norm(prox!(y2, f2, xtest2, 100.0) - (prox!(y2, h2, 2*xtest2 ,100.) - xtest2 )) <= 1e-11 
 
 f_obj(prox!(y2, f2, xtest, 100.0), f2, xtest, 100.)  ### Evaluating it
 
+### Rectangular matrix (10*11)
 
+Btest = O * Diagonal([8., 5.5, 3., 2.5, 2., 1., 0., 0., 0., 0.]) * hcat(transpose(O), ones(10))
+xtest3 = vec(reshape(Btest,110,1))
+stest3 = vec(reshape(O*Btest,110,1))
+qtest3 = vec(reshape(O^2 *Btest,110,1))
+                
+h3 = Rank1(10.,10,11)
+f3 = ShiftedRank(h3,xtest3, stest3, true)
+y3 = zeros(110)
+
+norm(prox!(y3, f3, qtest3, 100.0) - (prox!(y3, h3, qtest3 + xtest3 + stest3, 100.) - xtest3 - stest3)) <= 1e-11 
 
 
 
