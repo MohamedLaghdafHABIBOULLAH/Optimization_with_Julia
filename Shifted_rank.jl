@@ -160,4 +160,69 @@ ProximalOperators.prox!(t5,k5, st1 + st1.^2 + st1/2, 10.0)
 norm(Diagonal(t5 - st1 - st1/2) - reshape(prox!(y5, f5, qtest5, 10.0),10,10)) <= 1e-12
 
 
+using Test
+
+for (op, shifted_op) ∈ zip((:Rank1,), (:ShiftedRank,))
+    @testset "$shifted_op" begin
+        ShiftedOp = eval(shifted_op)
+        Op = eval(op)
+        # test basic types and properties
+        h = Op(1.,2,2)
+        x = ones(4)
+        ψ = shifted(h, x)
+        @test typeof(ψ) == ShiftedOp{Float64, Vector{Float64}, Vector{Float64}, Vector{Float64}}
+        @test all(ψ.sj .== 0)
+        @test all(ψ.xk .== x)
+        @test typeof(ψ.h.lambda) == Float64
+        @test ψ.h.lambda == h.lambda
+
+        # test values
+        @test ψ(zeros(4)) == h(x)
+        y = rand(4)
+        @test ψ(y) == h(x + y)
+
+        # test prox
+        # TODO
+
+        # test shift update
+        shift!(ψ, y)
+        @test all(ψ.sj .== 0)
+        @test all(ψ.xk .== y)
+
+        # shift a shifted operator
+        s = ones(4) / 2
+        φ = shifted(ψ, s)
+        @test all(φ.sj .== s)
+        @test all(φ.xk .== x)
+        @test φ(zeros(4)) == h(x + s)
+        y = rand(4)
+        @test φ(y) == h(x + s + y)
+
+        # test different types
+        h = Op(Float32(1.2), 2, 2)
+        y = rand(Float32, 8)
+        x = view(y, 1:2:8)
+        ψ = shifted(h, x)
+        @test typeof(ψ) == ShiftedOp{Float32, 
+        SubArray{Float32, 1, Vector{Float32}, Tuple{StepRange{Int64, Int64}}, true}, 
+        Vector{Float32}, 
+        Vector{Float32}}
+        @test typeof(ψ.h.lambda) == Float32
+        @test ψ.h.lambda == h.lambda
+        @test ψ(zeros(Float32, 4)) == h(x)
+
+      # test more sophisticated examples
+        # Diagonal Matrix (10,11)
+        st1 = rand(10)
+        x = vec(reshape(Diagonal(st1),100,1))
+        q = vec(reshape(Diagonal(st1.^2),100,1))
+        s = vec(reshape(Diagonal(st1/2),100,1))
+        h = Op(10.,10,10)
+        f = ShiftedOp(h ,x ,s ,true)
+        y = zeros(100)
+        k = NormL0(10.)
+        t = ProximalOperators.prox(k, st1 + st1.^2 + st1/2, 10.0)[1]
+        @test all(Diagonal(t - st1 - st1/2) .≈ reshape(prox!(y, f, q, 10.0),10,10))
+    end
+end
 
