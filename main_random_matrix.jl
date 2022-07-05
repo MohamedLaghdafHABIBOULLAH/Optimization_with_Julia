@@ -23,6 +23,8 @@ Sol2 = R2a(f[1], h, options, x0=f.meta.x0)
 
 prox!(y, h, vec(reshape(f[2], 100,1)), 1.)
 
+@test all(y .≈ Sol1.solution)
+@test all(y .≈ Sol2.solution)
 
 
 
