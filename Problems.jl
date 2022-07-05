@@ -29,7 +29,7 @@ function lrcomp_model(m::Int, n::Int)
     r
   end
 
-  FirstOrderModel(obj, grad!, rand(Float64, m*n), name = "LRCOMP")
+  return FirstOrderModel(obj, grad!, rand(Float64, m*n), name = "LRCOMP"), A
 end
 
 
