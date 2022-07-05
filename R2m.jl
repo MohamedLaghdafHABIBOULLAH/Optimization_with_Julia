@@ -11,10 +11,10 @@ using NLPModels, NLPModelsModifiers, ShiftedProximalOperators, SolverCore
 export R2a, PGa
 
 
-function R2a(nlp::AbstractNLPModel, args...; kwargs...)
+function R2m(nlp::AbstractNLPModel, args...; kwargs...)
   kwargs_dict = Dict(kwargs...)
   x0 = pop!(kwargs_dict, :x0, nlp.meta.x0)
-  xk, k, outdict = R2a(x -> obj(nlp, x), (g, x) -> grad!(nlp, x, g), args..., x0; kwargs_dict...)
+  xk, k, outdict = R2m(x -> obj(nlp, x), (g, x) -> grad!(nlp, x, g), args..., x0; kwargs_dict...)
 
   return GenericExecutionStats(
     outdict[:status],
@@ -33,7 +33,7 @@ function R2a(nlp::AbstractNLPModel, args...; kwargs...)
   )
 end
 
-function R2a(
+function R2m(
   f::F,
   ∇f!::G,
   h::H,
