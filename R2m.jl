@@ -36,10 +36,10 @@ end
 function R2a(
   f::F,
   ∇f!::G,
-  h::ProximableFunction,
+  h::H,
   options::ROSolverOptions,
   x0::AbstractVector,
-) where {F <: Function, G <: Function}
+) where {F <: Function, G <: Function, H}
   start_time = time()
   elapsed_time = 0.0
   ϵ = options.ϵ
@@ -213,10 +213,10 @@ function PGa(nlp::AbstractNLPModel, args...; kwargs...)
   function PGa(
     f::F,
     ∇f!::G,
-    h,
+    h::H,
     options::ROSolverOptions,
     x0::AbstractVector,
-  ) where {F <: Function, G <: Function}
+  ) where {F <: Function, G <: Function, H}
     start_time = time()
     elapsed_time = 0.0
     ϵ = options.ϵ
