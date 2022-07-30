@@ -54,12 +54,15 @@ function mat_rand_model3(m::Int, n::Int, B, Omega1, xinit)
     FirstOrderNLSModel(resid!, jprod_resid!, jprod_resid!, m*n, xinit, name = "MIT-LS") 
 end
 
-f, g = mat_rand_model(size(data, 1), size(data, 2), data[Omega], Om, vec(data)); 
+f, g = mat_rand_model(size(data, 1), size(data, 2), data[Omega], Om, rand(size(data))); 
 
 # ROSolverOptions
-options = ROSolverOptions(ν = 1., β = 1e16, ϵ = 1e-5, verbose = 10, maxIter = 1000);
+options_R2 = ROSolverOptions(ν = 1., β = 1e16, ϵ = 1e-5, verbose = 10, maxIter = 1000);
+options_LM = ROSolverOptions(ν = 1.e+2, β = 1e16, ϵ = 1e-5, verbose = 10, maxIter = 1000);
 
 # Terme non lisse
-h = Rank(2500.,ones(943,1682));
+h = Rank(2500.,ones(size(data)));
 
-sola = R2(f, h, options, x0 = f.meta.x0)
+sola_R2 = R2(f, h, options_R2, x0 = f.meta.x0)
+
+sola_LM = LM(g, h, options_LM)
